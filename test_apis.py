@@ -4,7 +4,6 @@ Test AWS Bedrock and Pinecone connections before running the app.
 Run: python test_apis.py
 """
 import os
-import sys
 
 try:
     from dotenv import load_dotenv
@@ -92,7 +91,7 @@ def test_bedrock_embeddings():
         result    = json.loads(response["body"].read())
         embedding = result.get("embedding", [])
 
-        ok(f"Embedding generated successfully")
+        ok("Embedding generated successfully")
         ok(f"Embedding dimension: {len(embedding)}")
 
         if len(embedding) == 1024:

@@ -7,7 +7,6 @@ import sys
 import time
 import tempfile
 import os
-import io
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
@@ -749,7 +748,7 @@ if len(st.session_state.get("multi_results", [])) > 0 or st.session_state.get("s
             # Use last result as primary, pass all in metadata
             combined_result = multi[-1]["result"]
             # Merge all findings from all queries
-            from rag.comparison import ComparisonResult, ComparisonItem
+            from rag.comparison import ComparisonResult
 
             all_agreements   = []
             all_contradict   = []

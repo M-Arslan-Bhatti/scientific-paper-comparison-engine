@@ -4,7 +4,6 @@ Amazon Titan Embeddings via AWS Bedrock.
 Wrapped as LangChain-compatible Embeddings class.
 """
 import json
-import os
 import boto3
 from typing import List
 from loguru import logger
@@ -22,12 +21,16 @@ class TitanEmbeddings(Embeddings):
     """
 
     def __init__(self):
-        self._client = boto3.client(
-            service_name="bedrock-runtime",
-            region_name=settings.aws_default_region,
-            aws_access_key_id=settings.aws_access_key_id,
-            aws_secret_access_key=settings.aws_secret_access_key,
-        )
+        client_kwargs = {
+            "service_name": "bedrock-runtime",
+            "region_name": settings.aws_default_region,
+        }
+        # Only pass explicit keys when set — otherwise fall back to boto3's
+        # default credential chain (IAM role, e.g. App Runner instance role).
+        if settings.aws_access_key_id and settings.aws_secret_access_key:
+            client_kwargs["aws_access_key_id"] = settings.aws_access_key_id
+            client_kwargs["aws_secret_access_key"] = settings.aws_secret_access_key
+        self._client = boto3.client(**client_kwargs)
         self.model_id = settings.bedrock_embed_model
         logger.info(f"TitanEmbeddings ready. Model: {self.model_id}")
 

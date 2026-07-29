@@ -38,9 +38,6 @@ try:
 except ImportError:
     print("  Installing required packages...")
     os.system(f"{sys.executable} -m pip install openpyxl scikit-learn numpy --break-system-packages -q")
-    import openpyxl
-    import sklearn
-    import numpy as np
     print("  Packages installed.")
 
 from openpyxl import Workbook
@@ -522,7 +519,7 @@ print("  EVALUATION COMPLETE!")
 print("="*60)
 print(f"\n  Excel report: {excel_path}")
 print(f"  JSON metrics: {json_path}")
-print(f"\n  KEY RESULTS:")
+print("\n  KEY RESULTS:")
 print(f"  Papers tested:    {len(paper_ids)}")
 print(f"  Agreements:       {len(all_agreements)}")
 print(f"  Contradictions:   {len(all_contradict)}")

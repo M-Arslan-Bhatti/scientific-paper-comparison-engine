@@ -8,7 +8,6 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from datetime import datetime
-from typing import List
 import io
 
 

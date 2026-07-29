@@ -7,7 +7,7 @@ so we use a custom LangChain BaseChatModel wrapper.
 """
 import json
 import boto3
-from typing import List, Optional, Any
+from typing import List
 from loguru import logger
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
@@ -24,13 +24,17 @@ def _get_boto_client():
         connect_timeout=30,
         retries={"max_attempts": 2}
     )
-    return boto3.client(
-        service_name="bedrock-runtime",
-        region_name=settings.aws_default_region,
-        aws_access_key_id=settings.aws_access_key_id,
-        aws_secret_access_key=settings.aws_secret_access_key,
-        config=config,
-    )
+    client_kwargs = {
+        "service_name": "bedrock-runtime",
+        "region_name": settings.aws_default_region,
+        "config": config,
+    }
+    # Only pass explicit keys when set — otherwise fall back to boto3's
+    # default credential chain (IAM role, e.g. App Runner instance role).
+    if settings.aws_access_key_id and settings.aws_secret_access_key:
+        client_kwargs["aws_access_key_id"] = settings.aws_access_key_id
+        client_kwargs["aws_secret_access_key"] = settings.aws_secret_access_key
+    return boto3.client(**client_kwargs)
 
 
 class BedrockClaude(BaseChatModel):

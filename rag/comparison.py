@@ -3,7 +3,7 @@ rag/comparison.py
 Multi-paper comparison logic using LangChain.
 """
 import json
-from typing import List, Dict, Any
+from typing import List, Dict
 from dataclasses import dataclass, field
 from loguru import logger
 from langchain_core.prompts import ChatPromptTemplate

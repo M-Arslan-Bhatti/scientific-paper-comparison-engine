@@ -7,11 +7,9 @@ Tables are extracted as structured text.
 This avoids heavy ML models (Table Transformer, ONNX)
 while still capturing table content from research papers.
 """
-import os
 import re
 import uuid
-from pathlib import Path
-from typing import List, Tuple
+from typing import List
 from dataclasses import dataclass, field
 from loguru import logger
 
@@ -90,7 +88,6 @@ class MultimodalPDFLoader:
 
                 # ── Extract tables first ──────────────────────────────────
                 tables = page.extract_tables() or []
-                table_bboxes = []
 
                 for table in tables:
                     if not table:

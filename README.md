@@ -110,3 +110,43 @@ spc/
 ```bash
 pytest tests/ -v
 ```
+
+---
+
+## DevOps / Production Deployment
+
+### Run in Docker (local)
+```bash
+cp .env.example .env   # fill in real keys
+docker compose up --build
+```
+Open http://localhost:8501
+
+### CI/CD
+- **`.github/workflows/ci.yml`** — runs on every PR/push to `main`: ruff lint, pytest, pip-audit, and a Docker build check. All required to pass before merge.
+- **`.github/workflows/cd.yml`** — runs after CI succeeds on `main`: builds the image, pushes to ECR, and triggers an App Runner deployment. Authenticates to AWS via GitHub OIDC (no static AWS keys in GitHub secrets). No-ops until the repo Variables below are set.
+
+### Infrastructure (Terraform)
+`terraform/` provisions the AWS side: ECR repo, GitHub OIDC + deploy role, App Runner service, a least-privilege Bedrock IAM role (instance role — no static AWS keys, no `AmazonBedrockFullAccess`), and a Secrets Manager entry for the Pinecone key.
+
+```bash
+cd terraform
+terraform init
+terraform plan -var="pinecone_api_key=$PINECONE_API_KEY"   # review first — no resources are created yet
+terraform apply -var="pinecone_api_key=$PINECONE_API_KEY"  # creates real, billed AWS resources
+```
+
+After `apply`, copy the outputs into the GitHub repo's **Settings > Secrets and variables > Actions > Variables**:
+| Terraform output | GitHub repo Variable |
+|---|---|
+| `github_actions_role_arn` | `AWS_ROLE_ARN` |
+| `ecr_repository_url` | `ECR_REPOSITORY_URL` |
+| `app_runner_service_arn` | `APP_RUNNER_SERVICE_ARN` |
+| — | `AWS_REGION` (e.g. `us-east-1`) |
+
+Once set, every push to `main` that passes CI automatically deploys to App Runner.
+
+### Notes on production-readiness
+- The app runs entirely on the AWS Bedrock instance role in production — no long-lived AWS keys are deployed anywhere. Locally, `.env` keys still work as a fallback.
+- Terraform state is local by default (`terraform/*.tfstate`, gitignored). If more than one person touches this infra, move to an S3+DynamoDB remote backend first.
+- `pip-audit` in CI is currently non-blocking (`|| true`) — flip it to blocking once existing dependency findings are triaged.

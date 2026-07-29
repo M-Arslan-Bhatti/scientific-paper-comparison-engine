@@ -9,7 +9,7 @@ from typing import List
 from dataclasses import dataclass
 from loguru import logger
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from ingestion.pdf_loader import DocumentElement, ParsedPaper
+from ingestion.pdf_loader import ParsedPaper
 from config import get_settings
 
 settings = get_settings()

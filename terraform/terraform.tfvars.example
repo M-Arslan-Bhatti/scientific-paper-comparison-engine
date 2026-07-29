@@ -1,0 +1,18 @@
+# Copy to terraform.tfvars and fill in, OR pass via -var / TF_VAR_* env vars.
+# Never commit terraform.tfvars (it's gitignored).
+
+aws_region   = "us-east-1"
+project_name = "spc"
+environment  = "prod"
+
+github_owner = "M-Arslan-Bhatti"
+github_repo  = "scientific-paper-comparison-engine"
+
+bedrock_llm_model   = "global.anthropic.claude-sonnet-4-6"
+bedrock_embed_model = "amazon.titan-embed-image-v1"
+
+pinecone_index_name  = "paper-comparison-engine"
+pinecone_environment = "us-east-1"
+
+# Better: export TF_VAR_pinecone_api_key=... instead of writing it here
+# pinecone_api_key = ""

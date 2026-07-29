@@ -10,7 +10,6 @@ Chain structure per paper:
 This chain is used internally by comparison.py to get
 context from each paper before the cross-paper synthesis step.
 """
-from typing import List
 from loguru import logger
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
