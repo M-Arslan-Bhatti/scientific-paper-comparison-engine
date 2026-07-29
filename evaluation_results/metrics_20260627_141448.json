@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-27T14:14:49.157904",
+  "papers_analysed": 5,
+  "agreements": 16,
+  "contradictions": 8,
+  "methodology_diffs": 19,
+  "research_gaps": 24,
+  "confirmed_contradictions": 3,
+  "precision": 0.375,
+  "recall": 0.75,
+  "kappa_r1_r2": 1.0,
+  "kappa_r1_r3": 1.0,
+  "kappa_r2_r3": 1.0,
+  "avg_kappa": 1.0,
+  "gap_coverage_pct": 95.8,
+  "kappa_pass": true
+}

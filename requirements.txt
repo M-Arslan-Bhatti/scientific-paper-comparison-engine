@@ -1,0 +1,61 @@
+# ============================================================
+# Scientific Paper Comparison Engine
+# Python 3.11.9  |  pip install -r requirements.txt
+# ============================================================
+
+# ── AWS Bedrock ───────────────────────────────────────────────
+boto3==1.35.36
+botocore==1.35.36
+
+# ── LangChain (per proposal) ──────────────────────────────────
+langchain==0.3.3
+langchain-aws==0.2.3
+langchain-community==0.3.2
+langchain-core==0.3.10
+
+# ── Pinecone Vector DB ────────────────────────────────────────
+pinecone==5.0.1
+langchain-pinecone==0.2.0
+
+# ── Unstructured — Multimodal Ingestion Pipeline ──────────────
+unstructured==0.15.13
+unstructured[pdf]==0.15.13
+pdfminer.six==20231228
+pdfplumber==0.11.4
+pypdf==4.3.1
+pillow==10.4.0
+pdf2image==1.17.0
+
+# ── Streamlit Frontend ────────────────────────────────────────
+streamlit==1.39.0
+streamlit-extras==0.4.7
+streamlit-option-menu==0.3.13
+plotly==5.24.1
+
+# ── Utilities ─────────────────────────────────────────────────
+python-dotenv==1.0.1
+numpy==1.26.4
+tiktoken==0.8.0
+tenacity==8.3.0
+loguru==0.7.2
+pandas==2.2.3
+
+# ── Testing ───────────────────────────────────────────────────
+pytest==8.3.3
+pytest-asyncio==0.24.0
+
+pydantic-settings==2.14.2
+python-dotenv==1.0.1
+python-docx==1.1.2
+
+# python -m venv venv
+# venv\Scripts\activate
+# pip install -r requirements.txt
+# python run.py
+
+# cmd
+# rmdir /s /q venv
+# C:\Users\microsoft\AppData\Local\Programs\Python\Python311\python.exe -m venv venv
+# python test_apis.py
+
+# python -c "from config.settings import get_settings; get_settings.cache_clear()"
