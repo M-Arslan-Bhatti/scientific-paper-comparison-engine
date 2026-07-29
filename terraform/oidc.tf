@@ -33,11 +33,13 @@ data "aws_iam_policy_document" "github_actions_trust" {
       values   = ["sts.amazonaws.com"]
     }
 
-    # Restrict to this exact repo, main branch only
+    # Restrict to this exact repo, main branch only. GitHub's sub claim now
+    # appends immutable owner/repo IDs (repo:OWNER@ID/REPO@ID:ref:...), so
+    # this wildcards around them rather than matching OWNER/REPO exactly.
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/main"]
+      values   = ["repo:${var.github_owner}*/${var.github_repo}*:ref:refs/heads/main"]
     }
   }
 }
