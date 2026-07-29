@@ -14,5 +14,8 @@ bedrock_embed_model = "amazon.titan-embed-image-v1"
 pinecone_index_name  = "paper-comparison-engine"
 pinecone_environment = "us-east-1"
 
+ecs_task_cpu    = "1024"
+ecs_task_memory = "3072"
+
 # Better: export TF_VAR_pinecone_api_key=... instead of writing it here
 # pinecone_api_key = ""

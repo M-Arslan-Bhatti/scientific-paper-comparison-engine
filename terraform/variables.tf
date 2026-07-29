@@ -58,14 +58,14 @@ variable "pinecone_environment" {
   default     = "us-east-1"
 }
 
-variable "app_runner_cpu" {
-  description = "App Runner instance vCPU"
+variable "ecs_task_cpu" {
+  description = "Fargate task vCPU units (1024 = 1 vCPU)"
   type        = string
-  default     = "1 vCPU"
+  default     = "1024"
 }
 
-variable "app_runner_memory" {
-  description = "App Runner instance memory"
+variable "ecs_task_memory" {
+  description = "Fargate task memory in MiB"
   type        = string
-  default     = "2 GB"
+  default     = "3072"
 }

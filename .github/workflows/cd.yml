@@ -1,12 +1,14 @@
 name: CD
 
-# Builds the image and deploys to AWS App Runner on every push to main,
-# once CI has passed. Requires these repo Variables (Settings > Secrets and
+# Builds the image and deploys to ECS Fargate on every push to main, once
+# CI has passed. Requires these repo Variables (Settings > Secrets and
 # variables > Actions > Variables) to be set by the Terraform step first:
-#   AWS_ROLE_ARN        - IAM role ARN for GitHub OIDC (terraform output: github_actions_role_arn)
+#   AWS_ROLE_ARN        - terraform output: github_actions_role_arn
 #   AWS_REGION          - e.g. us-east-1
 #   ECR_REPOSITORY_URL  - terraform output: ecr_repository_url
-#   APP_RUNNER_SERVICE_ARN - terraform output: app_runner_service_arn
+#   ECS_CLUSTER         - terraform output: ecs_cluster_name
+#   ECS_SERVICE         - terraform output: ecs_service_name
+#   ECS_TASK_FAMILY     - terraform output: ecs_task_family
 #
 # Until AWS_ROLE_ARN is set, this workflow no-ops (deploy job is skipped)
 # so it never blocks CI or fails loudly on a fresh clone.
@@ -37,7 +39,6 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to ECR
-        id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push image
@@ -51,7 +52,24 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy new image to App Runner
+      - name: Fetch current task definition
         run: |
-          aws apprunner start-deployment \
-            --service-arn "${{ vars.APP_RUNNER_SERVICE_ARN }}"
+          aws ecs describe-task-definition \
+            --task-definition "${{ vars.ECS_TASK_FAMILY }}" \
+            --query 'taskDefinition' > task-definition.json
+
+      - name: Render new task definition with updated image
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: app
+          image: ${{ vars.ECR_REPOSITORY_URL }}:${{ github.sha }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          service: ${{ vars.ECS_SERVICE }}
+          wait-for-service-stability: true

@@ -127,7 +127,9 @@ Open http://localhost:8501
 - **`.github/workflows/cd.yml`** — runs after CI succeeds on `main`: builds the image, pushes to ECR, and triggers an App Runner deployment. Authenticates to AWS via GitHub OIDC (no static AWS keys in GitHub secrets). No-ops until the repo Variables below are set.
 
 ### Infrastructure (Terraform)
-`terraform/` provisions the AWS side: ECR repo, GitHub OIDC + deploy role, App Runner service, a least-privilege Bedrock IAM role (instance role — no static AWS keys, no `AmazonBedrockFullAccess`), and a Secrets Manager entry for the Pinecone key.
+`terraform/` provisions the AWS side: ECR repo, GitHub OIDC + deploy role, an ECS Fargate service behind an ALB (default VPC, no NAT gateway — kept cheap for an FYP-scale deployment), a least-privilege Bedrock IAM task role (no static AWS keys, no `AmazonBedrockFullAccess`), and a Secrets Manager entry for the Pinecone key.
+
+> App Runner was the original target but this AWS account isn't subscribed/activated for it (`SubscriptionRequiredException`), so the deploy target is ECS Fargate instead.
 
 ```bash
 cd terraform
@@ -141,12 +143,15 @@ After `apply`, copy the outputs into the GitHub repo's **Settings > Secrets and 
 |---|---|
 | `github_actions_role_arn` | `AWS_ROLE_ARN` |
 | `ecr_repository_url` | `ECR_REPOSITORY_URL` |
-| `app_runner_service_arn` | `APP_RUNNER_SERVICE_ARN` |
+| `ecs_cluster_name` | `ECS_CLUSTER` |
+| `ecs_service_name` | `ECS_SERVICE` |
+| `ecs_task_family` | `ECS_TASK_FAMILY` |
 | — | `AWS_REGION` (e.g. `us-east-1`) |
 
-Once set, every push to `main` that passes CI automatically deploys to App Runner.
+Once set, every push to `main` that passes CI automatically builds, pushes to ECR, and deploys a new ECS task revision. The app becomes reachable at the `app_url` Terraform output once the first image has been pushed and the ECS task passes its health check.
 
 ### Notes on production-readiness
-- The app runs entirely on the AWS Bedrock instance role in production — no long-lived AWS keys are deployed anywhere. Locally, `.env` keys still work as a fallback.
+- The app runs entirely on the ECS task IAM role in production for Bedrock access — no long-lived AWS keys are deployed anywhere. Locally, `.env` keys still work as a fallback.
 - Terraform state is local by default (`terraform/*.tfstate`, gitignored). If more than one person touches this infra, move to an S3+DynamoDB remote backend first.
 - `pip-audit` in CI is currently non-blocking (`|| true`) — flip it to blocking once existing dependency findings are triaged.
+- The default VPC + public-subnet Fargate task keeps cost/complexity down for a student project. For a real multi-tenant production system, move ECS tasks to private subnets behind a NAT gateway.

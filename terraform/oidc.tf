@@ -73,10 +73,32 @@ data "aws_iam_policy_document" "github_actions_permissions" {
   }
 
   statement {
-    sid       = "AppRunnerDeploy"
-    effect    = "Allow"
-    actions   = ["apprunner:StartDeployment"]
-    resources = [aws_apprunner_service.app.arn]
+    sid    = "ECSDeploy"
+    effect = "Allow"
+    actions = [
+      "ecs:RegisterTaskDefinition",
+      "ecs:DescribeTaskDefinition",
+      "ecs:DescribeServices",
+      "ecs:UpdateService",
+    ]
+    resources = ["*"] # RegisterTaskDefinition/Describe* don't support resource-level scoping
+  }
+
+  statement {
+    sid    = "ECSDeployPassRole"
+    effect = "Allow"
+    actions = [
+      "iam:PassRole",
+    ]
+    resources = [
+      aws_iam_role.ecs_execution.arn,
+      aws_iam_role.ecs_task.arn,
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["ecs-tasks.amazonaws.com"]
+    }
   }
 }
 
